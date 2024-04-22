@@ -1,8 +1,6 @@
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +26,25 @@ fun Ejercicio1() {
     }
 }
 
+@Composable
+fun Ejercicio2() {
+    Box(modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center)
+    {
+        Box(
+            modifier = Modifier
+                .height(150.dp)
+                .background(Color.Cyan)
+                .align(Alignment.Center)
+                .wrapContentSize(Alignment.BottomCenter)
+        ) {
+            Text(
+                text = "Esto es un EJEMPLO del uso de Box",
+            )
+        }
+    }
+}
+
 fun main() = application {
     val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
 
@@ -36,6 +53,6 @@ fun main() = application {
         title = "Ejercicios",
         state = windowState
     ) {
-        Ejercicio1()
+        Ejercicio2()
     }
 }
