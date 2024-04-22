@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -37,9 +39,13 @@ fun Ejercicio2() {
                 .background(Color.Cyan)
                 .align(Alignment.Center)
                 .wrapContentSize(Alignment.BottomCenter)
+                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
         ) {
             Text(
                 text = "Esto es un EJEMPLO del uso de Box",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
     }
