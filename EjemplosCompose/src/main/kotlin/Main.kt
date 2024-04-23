@@ -35,7 +35,10 @@ fun MainScreen() {
         color = Color.LightGray,
         modifier = Modifier.fillMaxSize()
     ) {
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
             Surface(
                 color = Color.Green,
                 modifier = Modifier.size(60.dp)
@@ -44,7 +47,9 @@ fun MainScreen() {
                 color = Color.Black,
                 modifier = Modifier.size(60.dp)
             ) {}
-        } }}
+        }
+    }
+}
 
 fun main() = application {
     val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
