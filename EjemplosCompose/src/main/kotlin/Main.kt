@@ -29,36 +29,4 @@ fun Greeting(name: String) {
     Text(text = "Hello $name!")
 }
 
-@Composable
-fun MainScreen() {
-    Surface(
-        color = Color.LightGray,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Surface(
-                color = Color.Green,
-                modifier = Modifier.size(60.dp)
-            ) {}
-            Surface(
-                color = Color.Black,
-                modifier = Modifier.size(60.dp)
-            ) {}
-        }
-    }
-}
-
-fun main() = application {
-    val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
-
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "Ejemplos para practicar",
-        state = windowState
-    ) {
-        MainScreen()
-    }
-}
+//https://tutorialesprogramacionya.com/composeya/detalleconcepto.php?punto=5&codigo=5&inicio=0

@@ -62,64 +62,9 @@ fun Ejercicio3() {
     {
         Column(
             modifier = Modifier
-                .height(150.dp)
-                .background(Color.Red)
-                .align(Alignment.TopCenter)
-                .wrapContentSize(Alignment.TopCenter),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxHeight()
         ) {
-            Text(
-                text = "Ejemplo 1",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-            Column(
-                modifier = Modifier
-                    .height(150.dp)
-                    .background(Color.Gray)
-                    .wrapContentSize(Alignment.TopCenter),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Ejemplo 2",
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                Column(
-                    modifier = Modifier
-                        .height(150.dp)
-                        .background(Color.Cyan)
-                        .wrapContentSize(Alignment.TopCenter),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Ejemplo 3",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold
-                        )
-                    )
-                    Column(
-                        modifier = Modifier
-                            .height(150.dp)
-                            .background(Color.Green)
-                            .wrapContentSize(Alignment.TopCenter),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Ejemplo 4",
-                            style = TextStyle(
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
-                }
-            }
+            Text("Ejemplo 1")
         }
     }
 }
