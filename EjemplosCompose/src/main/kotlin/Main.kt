@@ -28,5 +28,3 @@ import androidx.compose.ui.window.rememberWindowState
 fun Greeting(name: String) {
     Text(text = "Hello $name!")
 }
-
-//https://tutorialesprogramacionya.com/composeya/detalleconcepto.php?punto=5&codigo=5&inicio=0
