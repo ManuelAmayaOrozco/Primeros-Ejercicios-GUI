@@ -28,4 +28,3 @@ import androidx.compose.ui.window.rememberWindowState
 fun Greeting(name: String) {
     Text(text = "Hello $name!")
 }
-

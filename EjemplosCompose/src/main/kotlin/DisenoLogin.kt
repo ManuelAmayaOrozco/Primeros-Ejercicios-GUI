@@ -61,7 +61,7 @@ fun LoginScreen() {
 fun Usuario(
     user: String,
     onUserChanged:(String) -> Unit
-    ) {
+) {
     OutlinedTextField(
         value = user,
         onValueChange = onUserChanged,
