@@ -73,11 +73,19 @@ fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicher
                     }
                 }
             )
+        }
 
+        if (toastSummon) {
+            Toast(toastMessage) {
+                toastSummon = false
+                toastMessage = ""}
+        }
+
+        LaunchedEffect(toastSummon){
             if (toastSummon) {
-                Toast(toastMessage) {
-                    toastSummon = false
-                    toastMessage = ""}
+                delay(2000)
+                toastMessage = ""
+                toastSummon = false
             }
         }
     }
@@ -195,7 +203,7 @@ fun SaveButton(
 fun Toast(
     message: String,
     toastCloser: () -> Unit) {
-    DialogWindow(
+    Dialog(
         onCloseRequest = toastCloser,
         state = rememberDialogState(position = WindowPosition(Alignment.Center))
     ) {
@@ -208,7 +216,7 @@ fun main() = application {
     val studentList = mutableStateListOf<String>()
     val gestorConsola = GestorConsola()
     val gestorFicheros = GestorFicheros(gestorConsola)
-    val ruta = "C:\\Users\\Usuario\\ReposGit\\EjemplosCompose\\src\\main\\kotlin\\Students.txt"
+    val ruta = "src\\main\\kotlin\\Students.txt"
     val studentFile = File(ruta)
 
     val studentFileList = gestorFicheros.leerFichero(studentFile)
