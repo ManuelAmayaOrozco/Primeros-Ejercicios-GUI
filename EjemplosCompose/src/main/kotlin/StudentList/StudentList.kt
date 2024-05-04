@@ -19,9 +19,9 @@ import kotlinx.coroutines.delay
 import java.io.InputStreamReader
 
 @Composable
-fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicheros: GestorFicheros) {
+fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicheros: GestorFicheros, studentViewModel: StudentViewModel) {
 
-    var newstudent by remember { mutableStateOf("") }
+    val newstudent by studentViewModel.newStudent
     val buttonEnabled = newstudent.isNotBlank()
     var result = false
     var toastSummon by remember { mutableStateOf(false) }
@@ -33,46 +33,63 @@ fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicher
             verticalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.CenterVertically),
             modifier = Modifier.fillMaxSize()
         ) {
+            Row(
+                modifier = Modifier.fillMaxSize().weight(3f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(end = 20.dp)
+                ) {
+                    NewStudent(
+                        newstudent = newstudent,
+                        onStudentChanged = { studentViewModel.newStudentChange(it) }
+                    )
 
-            NewStudent(
-                newstudent = newstudent,
-                onStudentChanged = { newstudent = it }
-            )
+                    NewStudentButton(
+                        buttonEnabled = buttonEnabled,
+                        onAddedStudent = { studentViewModel.addStudent() }
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        StudentCounter(
+                            studentList = studentList
+                        )
 
-            NewStudentButton(
-                buttonEnabled = buttonEnabled,
-                onAddedStudent = {
-                    studentList.add(newstudent)
-                    newstudent = ""}
-            )
+                        StudentScreen(
+                            studentList = studentList
+                        )
 
-            StudentCounter(
-                studentList = studentList
-            )
+                        ClearButton(
+                            studentList = studentList
+                        )
 
-            StudentScreen(
-                studentList = studentList
-            )
-
-            ClearButton(
-                studentList = studentList
-            )
-
-            SaveButton(
-                onSave = {
-                    var message = ""
-                    for (student in studentList) {
-                        message += "$student\n"
-                    }
-                    result = gestorFicheros.escribirFichero(studentFile, message)
-                    toastSummon = true
-                    toastMessage = if (result) {
-                        "Students saved successfully."
-                    } else {
-                        "Couldn't properly save students to file."
+                        SaveButton(
+                            onSave = {
+                                var message = ""
+                                for (student in studentList) {
+                                    message += "$student\n"
+                                }
+                                result = gestorFicheros.escribirFichero(studentFile, message)
+                                toastSummon = true
+                                toastMessage = if (result) {
+                                    "Students saved successfully."
+                                } else {
+                                    "Couldn't properly save students to file."
+                                }
+                            }
+                        )
                     }
                 }
-            )
+            }
+
         }
 
         if (toastSummon) {
@@ -146,7 +163,12 @@ fun StudentScreen(
             .padding(5.dp)
     ) {
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxHeight(0.78f)
+                .width(240.dp)
+                .padding(10.dp)
         ) {
             items(studentList){
                     item -> ListStudentRow(
@@ -179,8 +201,6 @@ fun ListStudentRow(
 fun SingleStudentDeleter(
     onDelete: () -> Unit
 ) {
-    Spacer(modifier = Modifier
-        .size(height = 75.dp, width = 200.dp))
     Button(
         onClick = onDelete
     ) {
@@ -213,12 +233,13 @@ fun Toast(
 
 fun main() = application {
     val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
-    val studentList = mutableStateListOf<String>()
     val gestorConsola = GestorConsola()
     val gestorFicheros = GestorFicheros(gestorConsola)
     val ruta = "src\\main\\kotlin\\Students.txt"
     val studentFile = File(ruta)
+    val studentViewModel = StudentViewModel(gestorFicheros, studentFile)
 
+    val studentList = studentViewModel.students
     val studentFileList = gestorFicheros.leerFichero(studentFile)
 
     if (studentFileList != null) {
@@ -232,6 +253,6 @@ fun main() = application {
         title = "Ejercicios",
         state = windowState
     ) {
-        MainScreen(studentList, studentFile, gestorFicheros)
+        MainScreen(studentList, studentFile, gestorFicheros, studentViewModel)
     }
 }
