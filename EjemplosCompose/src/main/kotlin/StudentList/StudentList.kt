@@ -9,19 +9,20 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.delay
-import java.io.InputStreamReader
 
 @Composable
-fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicheros: GestorFicheros, studentViewModel: StudentViewModel) {
+fun MainScreen(studentList: MutableList<String>,
+               studentFile: File, gestorFicheros: GestorFicheros,
+               studentViewModelFile: StudentViewModelFile,
+               studentViewModelDB: StudentViewModelDB) {
 
-    val newstudent by studentViewModel.newStudent
+    val newstudent by studentViewModelFile.newStudent
     val buttonEnabled = newstudent.isNotBlank()
     var result = false
     var toastSummon by remember { mutableStateOf(false) }
@@ -45,12 +46,12 @@ fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicher
                 ) {
                     NewStudent(
                         newstudent = newstudent,
-                        onStudentChanged = { studentViewModel.newStudentChange(it) }
+                        onStudentChanged = { studentViewModelFile.newStudentChange(it) }
                     )
 
                     NewStudentButton(
                         buttonEnabled = buttonEnabled,
-                        onAddedStudent = { studentViewModel.addStudent() }
+                        onAddedStudent = { studentViewModelFile.addStudent() }
                     )
                 }
                 Row(
@@ -91,6 +92,8 @@ fun MainScreen(studentList: MutableList<String>, studentFile: File, gestorFicher
             }
 
         }
+
+        //RadioButton para elegir entre file o DB
 
         if (toastSummon) {
             Toast(toastMessage) {
@@ -235,11 +238,13 @@ fun main() = application {
     val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
     val gestorConsola = GestorConsola()
     val gestorFicheros = GestorFicheros(gestorConsola)
+    val studentRepository = StudentRepository()
     val ruta = "src\\main\\kotlin\\Students.txt"
     val studentFile = File(ruta)
-    val studentViewModel = StudentViewModel(gestorFicheros, studentFile)
+    val studentViewModelFile = StudentViewModelFile(gestorFicheros, studentFile)
+    val studentViewModelDB = StudentViewModelDB(studentRepository)
 
-    val studentList = studentViewModel.students
+    val studentList = studentViewModelFile.students
     val studentFileList = gestorFicheros.leerFichero(studentFile)
 
     if (studentFileList != null) {
@@ -253,6 +258,6 @@ fun main() = application {
         title = "Ejercicios",
         state = windowState
     ) {
-        MainScreen(studentList, studentFile, gestorFicheros, studentViewModel)
+        MainScreen(studentList, studentFile, gestorFicheros, studentViewModelFile, studentViewModelDB)
     }
 }
