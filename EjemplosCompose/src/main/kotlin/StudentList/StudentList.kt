@@ -27,6 +27,7 @@ fun MainScreen(studentList: MutableList<String>,
     var result = false
     var toastSummon by remember { mutableStateOf(false) }
     var toastMessage = ""
+    var typeFile by remember { mutableStateOf(true) }
 
     MaterialTheme {
         Column(
@@ -71,6 +72,8 @@ fun MainScreen(studentList: MutableList<String>,
                         ClearButton(
                             studentList = studentList
                         )
+
+                        TypeButton()
 
                         SaveButton(
                             onSave = {
@@ -147,6 +150,11 @@ fun ClearButton(
     ) {
         Text(text = "Clear all")
     }
+}
+
+@Composable
+fun TypeButton() {
+
 }
 
 @Composable
