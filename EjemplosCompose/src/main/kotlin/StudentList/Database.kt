@@ -10,8 +10,8 @@ class SqlErrorException(message: String): Exception(message)
 
 object Database {
     private const val URL = "jdbc:mysql://localhost:3306/studentdb"
-    private const val USER = "studentuser"
-    private const val PASSWORD = "password"
+    private const val USER = "usuario"
+    private const val PASSWORD = "usuario"
     init {
         try {
             // Asegurarse de que el driver JDBC de MySQL esté disponible

@@ -17,17 +17,18 @@ import androidx.compose.ui.window.*
 import kotlinx.coroutines.delay
 
 @Composable
-fun MainScreen(studentList: MutableList<String>,
-               studentFile: File, gestorFicheros: GestorFicheros,
-               studentViewModelFile: StudentViewModelFile,
-               studentViewModelDB: StudentViewModelDB) {
+fun StudentListScreen(studentViewModel: IStudentViewModel) {
 
-    val newstudent by studentViewModelFile.newStudent
+    val newstudent by studentViewModel.newStudent
     val buttonEnabled = newstudent.isNotBlank()
     var result = false
     var toastSummon by remember { mutableStateOf(false) }
     var toastMessage = ""
     var typeFile by remember { mutableStateOf(true) }
+
+    LaunchedEffect(key1 = true) {
+        studentViewModel.loadStudents()
+    }
 
     MaterialTheme {
         Column(
@@ -47,12 +48,12 @@ fun MainScreen(studentList: MutableList<String>,
                 ) {
                     NewStudent(
                         newstudent = newstudent,
-                        onStudentChanged = { studentViewModelFile.newStudentChange(it) }
+                        onStudentChanged = { studentViewModel.newStudentChange(it) }
                     )
 
                     NewStudentButton(
                         buttonEnabled = buttonEnabled,
-                        onAddedStudent = { studentViewModelFile.addStudent() }
+                        onAddedStudent = { studentViewModel.addStudent() }
                     )
                 }
                 Row(
@@ -73,20 +74,25 @@ fun MainScreen(studentList: MutableList<String>,
                             studentList = studentList
                         )
 
-                        TypeButton()
-
                         SaveButton(
                             onSave = {
                                 var message = ""
-                                for (student in studentList) {
-                                    message += "$student\n"
-                                }
-                                result = gestorFicheros.escribirFichero(studentFile, message)
-                                toastSummon = true
-                                toastMessage = if (result) {
-                                    "Students saved successfully."
+                                if (typeFile) {
+                                    for (student in studentList) {
+                                        message += "$student\n"
+                                    }
+                                    result = gestorFicheros.escribirFichero(studentFile, message)
+                                    toastSummon = true
+                                    toastMessage = if (result) {
+                                        "Students saved successfully."
+                                    } else {
+                                        "Couldn't properly save students to file."
+                                    }
                                 } else {
-                                    "Couldn't properly save students to file."
+                                    for (student in studentList) {
+                                        message += "$student\n"
+                                    }
+                                    studentViewModel.saveStudents()
                                 }
                             }
                         )
@@ -153,8 +159,22 @@ fun ClearButton(
 }
 
 @Composable
-fun TypeButton() {
-
+fun TypeButton(
+    onFile:() -> Unit,
+    onDB:() -> Unit
+) {
+    Column {
+        Button(
+            onClick = onFile
+        ) {
+            Text(text = "File")
+        }
+        Button(
+            onClick = onDB
+        ) {
+            Text(text = "Database")
+        }
+    }
 }
 
 @Composable
@@ -242,30 +262,80 @@ fun Toast(
     }
 }
 
-fun main() = application {
-    val windowState = rememberWindowState(size = DpSize(1200.dp, 800.dp))
-    val gestorConsola = GestorConsola()
-    val gestorFicheros = GestorFicheros(gestorConsola)
-    val studentRepository = StudentRepository()
-    val ruta = "src\\main\\kotlin\\Students.txt"
-    val studentFile = File(ruta)
-    val studentViewModelFile = StudentViewModelFile(gestorFicheros, studentFile)
-    val studentViewModelDB = StudentViewModelDB(studentRepository)
-
-    val studentList = studentViewModelFile.students
-    val studentFileList = gestorFicheros.leerFichero(studentFile)
-
-    if (studentFileList != null) {
-        for (student in studentFileList) {
-            studentList.add(student)
-        }
-    }
+@Composable
+fun ChooseStudentVMWindow(
+    onChangeVmType: (Boolean) -> Unit,
+    onCloseWindow: () -> Unit
+){
+    val windowState = rememberWindowState(size = DpSize(600.dp, 600.dp))
 
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = onCloseWindow,
         title = "Ejercicios",
         state = windowState
     ) {
-        MainScreen(studentList, studentFile, gestorFicheros, studentViewModelFile, studentViewModelDB)
+        TypeButton(
+            onFile = { onChangeVmType(true) },
+            onDB = { onChangeVmType(false) }
+        )
     }
+}
+
+
+@Composable
+fun StudentListWindow(
+    studentViewModel: IStudentViewModel,
+    onCloseWindow: () -> Unit
+) {
+    val windowState = rememberWindowState(size = DpSize(1200.dp, 1000.dp))
+
+    Window(
+        onCloseRequest = onCloseWindow,
+        title = "Ejercicios",
+        state = windowState
+    ) {
+        StudentListScreen(
+            studentViewModel
+        )
+    }
+}
+
+fun main() = application {
+
+    var vmType by remember { mutableStateOf(true) }
+    var showStudentListWindow by remember { mutableStateOf(false) }
+
+    MaterialTheme {
+
+        if (showStudentListWindow) {
+
+            val studentViewModel = if (vmType) {
+                //File
+                val ruta = "src\\main\\kotlin\\Students.txt"
+                val studentFile = File(ruta)
+                val gestorConsola = GestorConsola()
+                val gestorFicheros = GestorFicheros(gestorConsola)
+                StudentViewModelFile(gestorFicheros, studentFile)
+            }
+            else {
+                //Db
+                val studentRepository = StudentRepository()
+                StudentViewModelDB(studentRepository)
+            }
+
+            StudentListWindow(
+                studentViewModel = studentViewModel,
+                onCloseWindow = { exitApplication() }
+            )
+        }
+        else {
+            ChooseStudentVMWindow(
+                onChangeVmType = { vmType = it },
+                onCloseWindow = { showStudentListWindow = true }
+            )
+        }
+
+    }
+
+
 }
