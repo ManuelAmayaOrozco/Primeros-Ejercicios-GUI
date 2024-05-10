@@ -19,12 +19,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun StudentListScreen(studentViewModel: IStudentViewModel) {
 
-    val newstudent by studentViewModel.newStudent
-    val buttonEnabled = newstudent.isNotBlank()
-    var result = false
-    var toastSummon by remember { mutableStateOf(false) }
-    var toastMessage = ""
-
     LaunchedEffect(key1 = true) {
         studentViewModel.loadStudents()
     }
@@ -46,12 +40,12 @@ fun StudentListScreen(studentViewModel: IStudentViewModel) {
                         .padding(end = 20.dp)
                 ) {
                     NewStudent(
-                        newstudent = newstudent,
+                        newstudent = studentViewModel.newStudent.value,
                         onStudentChanged = { studentViewModel.newStudentChange(it) }
                     )
 
                     NewStudentButton(
-                        buttonEnabled = buttonEnabled,
+                        buttonEnabled = studentViewModel.buttonEnabled,
                         onAddedStudent = { studentViewModel.addStudent() }
                     )
                 }
@@ -66,21 +60,17 @@ fun StudentListScreen(studentViewModel: IStudentViewModel) {
                         )
 
                         StudentScreen(
-                            studentList = studentViewModel.students.toMutableList()
+                            studentList = studentViewModel.students.toMutableList(),
+                            onDelete = { }
                         )
 
                         ClearButton(
-                            studentList = studentViewModel.students.toMutableList()
+                            onClear = { studentViewModel.clearStudents() }
                         )
 
                         SaveButton(
                             onSave = {
-                                var message = ""
-                                    for (student in studentViewModel.students.toMutableList()) {
-                                        message += "$student\n"
-                                    }
-                                    studentViewModel.saveStudents()
-                                    toastSummon = true
+                                studentViewModel.saveStudents()
                             }
                         )
                     }
@@ -91,18 +81,9 @@ fun StudentListScreen(studentViewModel: IStudentViewModel) {
 
         //RadioButton para elegir entre file o DB
 
-        if (toastSummon) {
-            Toast(toastMessage) {
-                toastSummon = false
-                toastMessage = ""}
-        }
-
-        LaunchedEffect(toastSummon){
-            if (toastSummon) {
-                delay(2000)
-                toastMessage = ""
-                toastSummon = false
-            }
+        if (studentViewModel.showInfoMessage.value) {
+            Toast(studentViewModel.infoMessage.value) {
+                studentViewModel.showInfoMessage(false) }
         }
     }
 }
@@ -134,11 +115,11 @@ fun NewStudentButton(
 
 @Composable
 fun ClearButton(
-    studentList: MutableList<String>
+    onClear: () -> Unit
 ) {
     Button(
         onClick = {
-            studentList.clear()
+            onClear()
         },
     ) {
         Text(text = "Clear all")
@@ -173,7 +154,8 @@ fun StudentCounter(
 
 @Composable
 fun StudentScreen(
-    studentList: MutableList<String>
+    studentList: MutableList<String>,
+    onDelete: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -192,7 +174,7 @@ fun StudentScreen(
                     item -> ListStudentRow(
                 item = item,
                 onDelete = {
-                    studentList.remove(item)
+                    onDelete()
                 }
                     )
             }
@@ -298,16 +280,22 @@ fun main() = application {
 
             val studentViewModel = if (vmType) {
                 //File
+
                 val ruta = "src\\main\\kotlin\\Students.txt"
                 val studentFile = File(ruta)
                 val gestorConsola = GestorConsola()
                 val gestorFicheros = GestorFicheros(gestorConsola)
-                StudentViewModelFile(gestorFicheros, studentFile)
+
+                val studentManagementFile = StudentManagementFile(gestorFicheros, studentFile)
+
+                StudentViewModel(studentManagementFile)
             }
             else {
                 //Db
                 val studentRepository = StudentRepository()
-                StudentViewModelDB(studentRepository)
+
+                val studentManagementDB = StudentManagementDB(studentRepository)
+                StudentViewModel(studentManagementDB)
             }
 
             StudentListWindow(

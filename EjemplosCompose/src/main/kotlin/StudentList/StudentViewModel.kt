@@ -9,8 +9,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 class StudentViewModel(
-    private val fileManagement: IGestorFicheros,
-    private val studentsFile: File
+    private val studentManagement: IStudentManagement,
 ) : IStudentViewModel {
 
     companion object {
@@ -22,7 +21,7 @@ class StudentViewModel(
     override val newStudent: State<String> = _newStudent
 
     private val _students = mutableStateListOf<String>()
-    override val students: MutableList<String> = _students
+    override val students: List<String> = _students
 
     private val _infoMessage = mutableStateOf("")
     override val infoMessage: State<String> = _infoMessage
@@ -32,6 +31,8 @@ class StudentViewModel(
 
     private val _selectedIndex = mutableStateOf(-1) // -1 significa que no hay selección
     override val selectedIndex: State<Int> = _selectedIndex
+
+    override val buttonEnabled = newStudent.toString().isNotBlank()
 
     override fun addStudent() {
         if (_newStudent.value.isNotBlank()) {
@@ -47,32 +48,19 @@ class StudentViewModel(
     }
 
     override fun loadStudents() {
-        val loadedStudents = fileManagement.leerFichero(studentsFile)
-        if (loadedStudents != null) {
-            _students.addAll(loadedStudents)
-        } else {
-            updateInfoMessage("No se pudieron cargar los datos de los estudiantes.")
-        }
+        _students.addAll(
+            studentManagement.loadStudents(
+                onFailure = { message -> updateInfoMessage(message) }
+            )
+        )
     }
 
     override fun saveStudents() {
-        var error = false
-        val newStudentsFile = fileManagement.crearFichero(studentsFile.absolutePath, "")
-        if (newStudentsFile != null) {
-            for (student in students) {
-                error = fileManagement.escribirFichero(studentsFile, "$student\n")
-                if (error) {
-                    break
-                }
-            }
-            if (error) {
-                updateInfoMessage("Error")
-            } else {
-                updateInfoMessage("Fichero guardado correctamente")
-            }
-        } else {
-            updateInfoMessage("No se pudo generar el fichero studentList.txt")
-        }
+        studentManagement.saveStudents(
+            students,
+            onSuccess = { message -> updateInfoMessage(message) },
+            onFailure = { message -> updateInfoMessage(message) }
+        )
     }
 
     override fun clearStudents() {
@@ -104,4 +92,5 @@ class StudentViewModel(
     override fun showInfoMessage(show: Boolean) {
         _showInfoMessage.value = show
     }
+
 }
