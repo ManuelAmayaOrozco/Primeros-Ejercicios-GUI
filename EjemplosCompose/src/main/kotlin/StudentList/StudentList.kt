@@ -24,7 +24,6 @@ fun StudentListScreen(studentViewModel: IStudentViewModel) {
     var result = false
     var toastSummon by remember { mutableStateOf(false) }
     var toastMessage = ""
-    var typeFile by remember { mutableStateOf(true) }
 
     LaunchedEffect(key1 = true) {
         studentViewModel.loadStudents()
@@ -63,37 +62,25 @@ fun StudentListScreen(studentViewModel: IStudentViewModel) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         StudentCounter(
-                            studentList = studentList
+                            studentList = studentViewModel.students.toMutableList()
                         )
 
                         StudentScreen(
-                            studentList = studentList
+                            studentList = studentViewModel.students.toMutableList()
                         )
 
                         ClearButton(
-                            studentList = studentList
+                            studentList = studentViewModel.students.toMutableList()
                         )
 
                         SaveButton(
                             onSave = {
                                 var message = ""
-                                if (typeFile) {
-                                    for (student in studentList) {
-                                        message += "$student\n"
-                                    }
-                                    result = gestorFicheros.escribirFichero(studentFile, message)
-                                    toastSummon = true
-                                    toastMessage = if (result) {
-                                        "Students saved successfully."
-                                    } else {
-                                        "Couldn't properly save students to file."
-                                    }
-                                } else {
-                                    for (student in studentList) {
+                                    for (student in studentViewModel.students.toMutableList()) {
                                         message += "$student\n"
                                     }
                                     studentViewModel.saveStudents()
-                                }
+                                    toastSummon = true
                             }
                         )
                     }
@@ -179,7 +166,7 @@ fun TypeButton(
 
 @Composable
 fun StudentCounter(
-    studentList: MutableList<String>
+    studentList: List<String>
 ) {
     Text("Students: ${studentList.size}")
 }
